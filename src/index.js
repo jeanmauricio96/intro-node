@@ -8,25 +8,16 @@ const { uuid } = require("uuidv4");
 
 const projects = [];
 
-/**
- * Métodos HTTP:
- *
- * GET: Buscar informação do back-end
- * POST: Criar uma informação no back-end
- * PUT/PATCH: Alterar uma informação no back-end
- * DELETE: Deletar uma informção no back-end
- */
-
-/**
- * Tipos de Parâmetros:
- *
- * Query Params: Filtros de paginação
- * Route Params: Identificar Recursos (atualizar/deletar)
- * Request Params: Conteúdo na hora de criar ou editar um recurso
- */
-
 app.get("/projects", (request, response) => {
-  return response.json(projects);
+  const { title } = request.query;
+
+  // estrutura condicional ternária
+
+  const results = title
+    ? projects.filter((project) => project.title.includes(title))
+    : projects;
+
+  return response.json(results);
 });
 
 app.post("/projects", (request, response) => {
@@ -38,8 +29,6 @@ app.post("/projects", (request, response) => {
 
   return response.json(project);
 });
-
-//http://localhost:3333/projects/2
 
 app.put("/projects/:id", (request, response) => {
   const { id } = request.params;
@@ -63,7 +52,17 @@ app.put("/projects/:id", (request, response) => {
 });
 
 app.delete("/projects/:id", (request, response) => {
-  return response.json(["projeto 2", "projeto 3"]);
+  const { id } = request.params;
+
+  const projectIndex = projects.findIndex((project) => project.id === id);
+
+  if (projectIndex < 0) {
+    return response.status(400).json({ error: "Project not found." });
+  }
+
+  projects.splice(projectIndex, 1);
+
+  return response.status(204).send();
 });
 
 const port = 3333;
